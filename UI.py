@@ -62,12 +62,11 @@ def search(word): # 検索文字が一致するセルの座標をrecipe_indexフ
             url = index_name[2]
             people_n = index_name[3]
             title_list.append(title)
-            #print("+++++++++++++++++++++++++++++++++++++++++")
-            #print("index："+ str(index))
-            #print("レシピ名："+ title)
-            #print(str(people_n)+ "　人分のレシピです")
-            #print("URL："+ url)
-            message()
+            print("+++++++++++++++++++++++++++++++++++++++++")
+            print("index："+ str(index))
+            print("レシピ名："+ title)
+            print(str(people_n)+ "　人分のレシピです")
+            print("URL："+ url)
 
             for index_ing in index_ing_lists:   #リストとして持っておく
                 if str(index) in str(index_ing[0]):
@@ -84,12 +83,12 @@ def search(word): # 検索文字が一致するセルの座標をrecipe_indexフ
     else:                    # 検索結果がある場合、レシピのindex選択に進む
         number()
 
-def message():
-    print("+++++++++++++++++++++++++++++++++++++++++")
-    print("index："+ str(index))
-    print("レシピ名："+ title)
-    print(str(people_n)+ "　人分のレシピです")
-    print("URL："+ url)
+#def message():
+    #print("+++++++++++++++++++++++++++++++++++++++++")
+    #print("index："+ str(index))
+    #print("レシピ名："+ title)
+    #print(str(people_n)+ "　人分のレシピです")
+    #print("URL："+ url)
     
 def number(): # 買い物リストに入れるレシピの index が 正しい数字か判定
     recipe_index = input( word_list[3] ) #買い物リストに入れるレシピの　indexを入力してください
