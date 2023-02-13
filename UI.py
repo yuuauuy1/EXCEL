@@ -1,11 +1,11 @@
 #必要ライブラリのインポート
 import openpyxl 
 import csv
-from fractions import Fraction  
+from fractions import Fraction  #有理数(分数で表現できるような値)を扱うためのモジュール
 
-#ファイルを開く
+#--------------------ファイルを開く-----------------------------------
 ing_wb = openpyxl.load_workbook("recipe_ingredients.xlsx") #レシピの材料と量の一覧表
-ing_ws = ing_wb.worksheets[0] 
+ing_ws = ing_wb.worksheets[0] #ワークシート１枚目を選択
 
 index_wb = openpyxl.load_workbook("recipe_index.xlsx") #レシピ名、ＵＲＬ、材料、人数分の表一覧
 index_ws = index_wb.worksheets[0]
@@ -32,16 +32,21 @@ def create_index_namelist():
 
         index_name_lists.append(index_name)
 
+
 #index.材料.量が一緒になったリストを作る
 index_ing_lists=[]
 def create_index_inglist():   
     
-    for row in ing_ws.iter_rows(min_row =2, min_col=1, max_col=3):
+    for row in ing_ws.iter_rows(min_row =2, min_col=1, max_col=6):
         index_ing =[]
         index_ing.append(row[0].value) #index列
         index_ing.append(row[1].value) #材料
         index_ing.append(row[2].value) #量
+        index_ing.append(row[3].value) #量(数字のみ)
+        index_ing.append(row[4].value) #単位
+        index_ing.append(row[5].value) #材料+単位
         index_ing_lists.append(index_ing)
+
 
 # 検索文字が正しく入力されているか判定する
 def input_word():  
@@ -53,6 +58,7 @@ def input_word():
         print(word_list[1]) #日本語以外の文字が入力されました      
         input_word()  
     
+
 #検索文字が一致するセルの座標をrecipe_indexファイルから検索
 def search_word(word):    
     title_list = [] #検索件数を把握するためにtitle_list にtitle格納する
@@ -73,7 +79,7 @@ def search_word(word):
                 if str(index) in str(index_ing[0]):
                     ingredient = index_ing[1]
                     amount =  index_ing[2]           
-                    print("{"+ str(ingredient)+" : "+str(amount)+"}")
+                    print("{"+ str(ingredient)+"："+str(amount)+"}")
 
     print( str( len(title_list))+ "件のレシピが見つかりました。" )
 
@@ -130,34 +136,39 @@ def end(): # レシピ検索継続するか 終了するか入力
 def choose_n_person():   
     count = 1
     dic_lists = []
-    for i in index_list:
+    for index in index_list:
     
-        for row in index_ws.iter_rows(min_col=1, max_col=4):
+        for index_name in index_name_lists:
 
-            if int(i) == row[0].value : 
-                number_of_people = row[3].value #何人分のレシピか
-                title = row[1].value #レシピの名前
+            if int(index) == index_name[0] : 
+                number_of_people = index_name[3] #何人分のレシピか
+                title = index_name[1] #レシピの名前
                 print("*********************************")
-                print(str(count) + "番目, レシピNo : " +str(i)+ " , こちらは " +str(number_of_people) + " 人分のレシピです")
+                print(str(count) + "番目, レシピNo : " +str(index)+ " , こちらは " +str(number_of_people) + " 人分のレシピです")
                 print("レシピ名 「 "+ title+" 」")
-                print(word_list[10])#何人分の材料を買いたいですか？
-                human_n = input(word_list[9])  #ユーザーが作りたい人数を入力                           
-                human_n_result = human_n.isdigit() #ユーザーが作りたい人数が整数であるか判定
-                
-                if human_n_result: 
-                    ingredients_a =[]
-                    amount_a =[]   
-                    for row in ing_ws.iter_rows(min_col=1, max_col=6):
+                                
+                def calc_fractions():
+                    print(word_list[10])#何人分の材料を買いたいですか？
+                    human_n = input(word_list[9])  #ユーザーが作りたい人数を入力                           
+                    human_n_result = human_n.isdigit() #ユーザーが作りたい人数が整数であるか判定
+                               
+                    if human_n_result: 
+                        ingredients =[]
+                        amount_list =[]   
+                        for index_ing in index_ing_lists:
         
-                        if int(i) == row[0].value:
-                            ingredients_a.append(row[5].value)
-                            num = Fraction(row[3].value)
-                            num = num * Fraction(int(human_n), int(number_of_people)) #欲しい人数の量に変換
-                            amount_a.append(num)
-                            dic_a= dict(zip(ingredients_a, amount_a)) 
-                    dic_lists.append(dic_a) # 辞書同士を連結させるために、辞書のリストを作る
-                else:
-                    print(word_list[5])
+                            if int(index) == index_ing[0]:
+                                ingredients.append(index_ing[5])
+                                num = Fraction(index_ing[3])
+                                new_num = num * Fraction(int(human_n), int(number_of_people)) #欲しい人数の量に変換
+                                amount_list.append(new_num)
+                                dic= dict(zip(ingredients, amount_list)) 
+
+                        dic_lists.append(dic) # 辞書同士を連結させるために、辞書のリストを作る
+                    else:
+                        print(word_list[5]) #【！】 数字以外の文字が入力されました。
+                        calc_fractions()
+                calc_fractions()
         count += 1
     return dic_lists
 
@@ -171,10 +182,10 @@ def get_ingredirnts(dic_lists):
                 num_1 = Fraction(new_dic.get(key) or 0) #分数の分量があるのでFraction型に変換する      
                 num_2 = Fraction(dic.get(key) or 0) #分量Noneがある可能性あるので　「or 0」 を入力      
                 sum = num_1 + num_2          
-                new_dic[key] = sum
+                new_dic[key] = sum                
             else: # 同じkeyがない場合は　dicのvalueをそのまま採用
                 new_dic[key] = dic[key]
-
+                
 #--------------実行------------------------
 create_wordlist()
 create_index_namelist()
@@ -185,8 +196,8 @@ get_ingredirnts(lists)
 
 #お買い物リスト表示
 print(word_list[11]) #----買い物リスト---
-print(word_list[12]) #調味料は０と表示される
-print(word_list[13]) #（）の中は単位です
-
-for key, sum in new_dic.items():
-    print(key + " : " + str(sum))
+print(word_list[12])#調味料は０と表示されますが、１つあれば良いという意味です！
+print(word_list[13])#（）の中は単位です
+for key, value in new_dic.items():
+    
+    print(key + " : " +  str(value))
