@@ -9,7 +9,6 @@ colorama==0.4.6
 et-xmlfile==1.1.0
 h11==0.14.0
 idna==3.4
-numpy==1.23.5
 openpyxl==3.0.10
 outcome==1.2.0
 packaging==21.3
