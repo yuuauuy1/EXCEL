@@ -198,6 +198,6 @@ get_ingredirnts(lists)
 print(word_list[11]) #----買い物リスト---
 print(word_list[12])#調味料は０と表示されますが、１つあれば良いという意味です！
 print(word_list[13])#（）の中は単位です
-for key, value in new_dic.items():
-    
+
+for key, value in new_dic.items():    
     print(key + " : " +  str(value))
